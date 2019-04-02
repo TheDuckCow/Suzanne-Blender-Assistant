@@ -1,6 +1,8 @@
-# Blender Helper Addon (Monkey See? Suzanne Assistant? Blender Helper?)
+# The Suzanne Blender Assistant Addon
 
 ## Purpose of addon
+
+[Directly download the addon here](https://github.com/TheDuckCow/Suzanne-Blender-Assistant/archive/master.zip).
 
 Let's be clear. This is an April Fool's joke made in conjunction with [Theory Studios](http://theorystudios.com).
 

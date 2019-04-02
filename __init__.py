@@ -23,12 +23,12 @@ bl_info = {
 	"name":        "Suzanne Blender Assistant",
 	"description": "Enjoy using Blender with a 'helpful' assistant",
 	"author":      "Patrick W. Crawford, Theory Studios",
-	"version":     (1, 0, 0),
+	"version":     (1, 0, 1),
 	"blender":     (2, 80, 0),
 	"location":    "Info Header, right-hand side",
 	"warning":     "This is an April Fool's Joke addon!",
-	"wiki_url":    "",
-	"tracker_url": "https://github.com/TheDuckCow/Suzzane-Blender-Assistant/issues",
+	"wiki_url":    "https://forms.gle/5KPyzQynnXWVbKzC6",
+	"tracker_url": "https://github.com/TheDuckCow/Suzanne-Blender-Assistant/issues",
 	"category":    "System"
 	}
 

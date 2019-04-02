@@ -1,12 +1,14 @@
 id	condition	icon	suggestion	buttons	action	helpful
-tut_06_alt	prev:tut_02,tut_03 object_exists:Torus		Congradulations, you completed the tutorial! Now go wild.	ok	none	TRUE
-tut_06	prev:tut_02,tut_03 ops_recent:mesh.primitive_torus_add		Congradulations, you completed the tutorial! Now go wild.	ok	none	TRUE
-tut_05	prev:tut_04 elapsed:10s DISABLE_ROW		You seem to be having trouble adding a material. Let me take care of that for you.	ok,dismiss	assign_torus_material	TRUE
+tut_06	prev:tut_05,tut_04	helpful	Congrats! You completed your first major Blender scene. You should definitely tweet this and share it on BlenderArtists as original work.	ok	url:http://twitter.com/home?status=Thanks%20to%20%40TheoryStudioLLC%27s%20Blender%20Assistant%20Addon%2C%20I%20completed%20my%20first%20amazing%20scene!%20%23b3d%20	TRUE
+tut_06_alt	prev:tut_02,tut_03 object_exists:Torus	helpful	Congrats! You completed your the Donut tutorial. You should definitely tweet this and share it on BlenderArtists as original work.  Press OK to share now.	ok	url:https://twitter.com/intent/tweet?text=Thanks%20to%20%40TheoryStudioLLC%27s%20Blender%20Assistant%20Addon%2C%20I%20completed%20my%20first%20amazing%20scene%21%20%23b3d%20Try%20it%20yourself:%20https://forms.gle/5KPyzQynnXWVbKzC6	TRUE
+tut_06	prev:tut_02,tut_03 ops_recent:mesh.primitive_torus_add	helpful	Congradulations, you completed the tutorial! Now go wild.	ok	none	TRUE
+tut_05	prev:tut_04 elapsed:10s DISABLE_ROW	weary	You seem to be having trouble adding a material. Let me take care of that for you.	ok,dismiss	assign_torus_material	TRUE
 tut_04	prev:tut_02,tut_03 ops_recent:mesh.primitive_torus_add DISABLE_ROW		Great work. Now, let's add a material. Go to properties, material, create new material.	ok,dismiss	none	TRUE
-tut_03	prev:tut_02 elapsed:10s no_object_exists:Torus		You seem to be having trouble adding a torus. Let me just help you with that.   Click OK to add a torus.	ok,dismiss	ops:mesh.primitive_torus_add trigger_followup	TRUE
-tut_02	prev:tut_01		Great! Let's start this donut tutorial by adding a torus by selecting Shift A: Mesh > Torus.		none	TRUE
-tut_01	not_dismissed no_prev		Hi, I'm Suzanne, your Blender Assistant! Want to get started with a classic starter tutorial?  Click OK below to get started.	ok,dismiss	trigger_followup	TRUE
-tut_06	prev:tut_05,tut_04		Congrats! You completed your first major Blender scene. You should definitely tweet this and share it on BlenderArtists as original work.	ok	url:http://twitter.com/home?status=Thanks%20to%20%40TheoryStudioLLC%27s%20Blender%20Assistant%20Addon%2C%20I%20completed%20my%20first%20amazing%20scene!%20%23b3d%20	TRUE
-rand_01	elapsed:120s	weary	I just wanted to say, this scene is looking..... great.	dismiss	none	FALSE
-void	is_void		Wow, such empty. Very void			FALSE
+tut_03	prev:tut_02 elapsed:10s no_object_exists:Torus	weary	You seem to be having trouble adding a torus. Let me just help you with that.   Click OK to add a torus.	ok,dismiss	ops:mesh.primitive_torus_add trigger_followup	TRUE
+tut_02	prev:tut_01	thinking	Great! Let's start this Donut tutorial by adding a torus. With your mouse over any 3Dview, press Shift A: Mesh > Torus.		none	TRUE
+tut_01	not_dismissed no_prev	helpful	Hi, I'm Suzanne, your Blender Assistant! Want to get started with a classic starter tutorial?  Click OK below to get started.	ok,dismiss	trigger_followup	TRUE
+rand_02	elapsed:120s	helpful	Hi, I don't mean to interrupt, but do you find me useful? Have ideas on other ways I can help? Try filling out a new suggestion by clicking OK below.	dismiss	url:https://forms.gle/5KPyzQynnXWVbKzC6	TRUE
+rand_01	elapsed:200s	weary	I just wanted to say, this scene is looking..... great.	dismiss	none	FALSE
+void	is_void	derp	Wow, such empty. Very void	dismiss	none	FALSE
 no_camera	no_camera	weary	So, how do you plan on rendering this scene of yours?   Press OK to add a camera	ok,dismiss	ops:object.camera_add	TRUE
+use_3d	prop:scene.render.use_multiview=False elapsed:7s		Have you tried rendering in 3D? Press OK to enable - it's the 90s, go for it.	ok,dismiss	prop:scene.render.use_multiview=True prop:scene.render.views_format='STEREO_3D'

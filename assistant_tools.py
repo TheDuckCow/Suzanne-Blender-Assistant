@@ -33,7 +33,7 @@ import bpy
 CHECK_INTERVAL = 5 # time in seconds
 SCENE_POPUP_INTERVAL = 7 # min time in seconds before allowing another popup to generate
 LAST_N_ACTIONS = 20 # cache of last number of operators/prop changes to check
-VERBOSE = True # extra printouts
+VERBOSE = False # extra printouts
 
 # global state saving with appropriate initial values
 LAST_CHECK = 0 # last check for suggestions
@@ -163,6 +163,9 @@ def start_background_thread_if_none():
 	Note this is triggered constantly by UI redrawing, end quickly wherever
 	possible.
 	"""
+	global VERBOSE
+	VERBOSE = get_addon_preferences().verbose
+
 	if STOP_SERVER is True:
 		return
 
@@ -203,10 +206,8 @@ def assistant_thread():
 			time.sleep(LAST_CHECK + CHECK_INTERVAL - now)
 
 		LAST_CHECK = time.time()
-		log("Checking now for suggetions")
+		log("Checking now for suggetions, Thread first alive:"+str(first_live))
 		update_ops_sequence()
-		log("Finished checking for suggestions")
-		log("First live:"+str(first_live))
 
 		generate_suggestions()
 
@@ -215,7 +216,7 @@ def assistant_thread():
 		# living thread won't hang blender on quit if not deliberatly stopped
 		break
 
-	log("Stopping assistant thread")
+	log("Stopping assistant thread\n")
 	global BACKGROUND_THREAD
 	BACKGROUND_THREAD = None
 
@@ -329,6 +330,17 @@ def generate_suggestions():
 				if not op_used:
 					condition_met = False
 					break
+			elif cond.startswith("prop:"):
+				log("Conditional check")
+				if "=" not in cond:
+					condition_met = False
+					break
+				field = cond[5:cond.index("=")] # safer than split
+				value = cond[1+cond.index("="):]
+				prop = get_prop_value_from_string(context, field)
+				if prop != interpret_value(value):
+					condition_met = False
+					break
 			elif cond.startswith("object_exists:"):
 				if cond[14:] not in bpy.data.objects:
 					condition_met = False
@@ -355,9 +367,7 @@ def generate_suggestions():
 			break
 		else:
 			continue
-
 	SUGGESTIONS = local_sugg
-	# finished
 
 
 def is_void(context):
@@ -374,6 +384,42 @@ def has_no_camera(context):
 			return False
 	return True
 
+
+def get_prop_value_from_string(context, prop):
+	"""Given string, return the actual property value assuming context base"""
+	prop_segments = prop.split(".")
+	tmp = context
+	for seg in prop_segments:
+		if hasattr(tmp, seg):
+			tmp = getattr(tmp, seg)
+		else:
+			tmp = None
+			break
+	return tmp
+
+
+def set_prop_value_from_string(context, prop, value):
+	"""Given prop string and value, assign value to property"""
+	prop_segments = prop.split(".")
+	tmp = context
+	for seg in prop_segments[:-1]:
+		if hasattr(tmp, seg):
+			tmp = getattr(tmp, seg)
+		else:
+			return
+	setattr(tmp, prop_segments[-1], value)
+
+
+def interpret_value(value):
+	"""Take string input as if python convert and interpret as variable"""
+	# for booleans
+	if value.lower()=="false":
+		return False
+	if value.lower()=="true":
+		return True
+	# string
+	if len(value)>2 and value[0]==value[-1] and value[0] in ["'", "\""]:
+		return value[1:-1]
 
 
 # -----------------------------------------------------------------------------

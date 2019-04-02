@@ -78,9 +78,13 @@ def word_wrap(element, text, width=400):
 def get_suzanne_mood(self, context):
 	"""Sets single item of UI List for icon display purpsoes"""
 	global RANDOM_TICK
-	if len(preview_collections["assistant_poses"]) >= RANDOM_TICK:
-		RANDOM_TICK = 0
-	use_set = sorted(list(preview_collections["assistant_poses"]))[RANDOM_TICK]
+
+	if tools.SUGGESTIONS and tools.SUGGESTIONS.get("icon") in preview_collections["assistant_poses"]:
+		use_set = tools.SUGGESTIONS.get("icon")
+	elif len(preview_collections["assistant_poses"]) <= RANDOM_TICK:
+		use_set = sorted(list(preview_collections["assistant_poses"]))[0]
+	else:
+		use_set = sorted(list(preview_collections["assistant_poses"]))[RANDOM_TICK]
 	thumbnails = []
 	if not tools.SUGGESTIONS:
 		thumbnails.append((
@@ -112,13 +116,13 @@ class ASSIST_OT_assistant_suggestion_action(bpy.types.Operator):
 		options = {'HIDDEN'})
 
 	dismiss = bpy.props.BoolProperty(
-		name = "Dismiss this tip from showing again",
+		name = "Dismiss and don't show again",
 		description = "After ticking this box and pressing OK below, this tip will no longer display.",
 		default = False)
 	action = bpy.props.StringProperty(
-		name = "",
+		name = "action",
 		description = "The output action to take, displayed as a property like so in order to show up in oprator history",
-		default = False,
+		default = "",
 		options = {'HIDDEN'})
 
 	#action = None  # util used to avoid re-grabbing suggestion state (could change)
@@ -142,8 +146,6 @@ class ASSIST_OT_assistant_suggestion_action(bpy.types.Operator):
 
 		# decide if showing an OK box or fleeting popup
 		show_ok = True
-		# self.dismiss = False # default to turn off
-		# print("buttons a thing?", self.suggestion_state["buttons"])
 		# if self.suggestion_state is not None and "ok" not in self.suggestion_state["buttons"]:
 		# 	show_ok = False
 		wm = context.window_manager
@@ -190,10 +192,16 @@ class ASSIST_OT_assistant_suggestion_action(bpy.types.Operator):
 			right.prop(self, "dismiss")
 
 	def execute(self, context):
+		tools.log("RUNNING EXECUTE of the assistant")
 		tools.LAST_CHECK = time.time()
 		if self.dismiss is True and self.suggestion_id:
 			tools.save_dismissed_suggestion(self.suggestion_id)
+			tools.SUGGESTIONS = {}
+			return {'FINISHED'}
 		if not self.action:
+			if not self.suggestion_state.get("buttons"):
+				# register this popup since there's no OK/dismiss button
+				tools.PREVIOUS_SUGGESTION = self.suggestion_id
 			tools.log("No actions currently being taken")
 			return {'FINISHED'}
 		if self.suggestion_id:
@@ -221,6 +229,15 @@ class ASSIST_OT_assistant_suggestion_action(bpy.types.Operator):
 				# special case to force popup to show up sooner
 				tools.LAST_CHECK -= 10
 				tools.UI_LAST_CHECK = tools.LAST_CHECK
+			elif act.lower().startswith("prop:"):
+				# assign a property value
+				if "=" not in act:
+					continue
+				field = act[5:act.index("=")] # safer than split
+				value = act[1+act.index("="):]
+				tools.set_prop_value_from_string(
+					context, field, tools.interpret_value(value))
+				tools.log("Applied field value: "+field)
 
 		return {'FINISHED'}
 
@@ -285,12 +302,20 @@ class SBA_preferences(bpy.types.AddonPreferences):
 
 
 def header_draw(self, context):
-	self.layout.operator(
-		"assist.suggestion_action",
-		icon='MONKEY',
-		text='',
-		emboss=False
-	)
+	if tools.SUGGESTIONS != {} and time.time()%1>0.5:
+		self.layout.operator(
+			"assist.suggestion_action",
+			icon='ERROR',
+			text='',
+			emboss=False
+		)
+	else:
+		self.layout.operator(
+			"assist.suggestion_action",
+			icon='MONKEY',
+			text='',
+			emboss=False
+		)
 	# trigger loading of background thread if not
 	tools.start_background_thread_if_none()
 
